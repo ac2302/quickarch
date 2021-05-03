@@ -48,6 +48,7 @@ class Installer:
         # installing the kernels
         for kernel in self.kernels:
             packages = [kernel, kernel + '-headers']
+            self.install(packages=packages)
         
         # installing custom packages
         self.install(packages=self.custom_packages)
