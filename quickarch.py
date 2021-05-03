@@ -60,16 +60,17 @@ class Installer:
             print(self.locale, file=f)
         self.run_chroot('locale-gen')
 
-        # setting up root password
-        self.run_chroot(f"echo 'root:{self.root_password}' | chpasswd")
-
-        # adding users
-
         # installing grub
         self.install(['grub', 'efibootmgr', 'dosfstools', 'os-prober', 'mtools'])
         self.run_chroot(f'mount {self.boot_part} /boot/EFI')
         self.run_chroot('grub-install --target=x86_64-efi --bootloader-id=arch_grub --recheck')
         self.run_chroot('grub-mkconfig -o /boot/grub/grub.cfg')
+
+        # adding users
+
+        # setting the passwords
+        print('\n\nset password for root user')
+        self.run_chroot('passwd')
 
         # powering off after user input
         print('*'*40)
