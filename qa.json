@@ -1,0 +1,15 @@
+{
+        "boot_part":"/dev/sda1",
+        "root_part":"/dev/sda2",
+        "root_fs":"ext4",
+        "home_part":"",
+        "home_fs":"ext4",
+        "root":"/mnt",
+        "locale":"en_IN UTF-8",
+        "timezone":"Asia/Kolkata",
+        "hostname":"arch",
+        "kernels":["linux"],
+        "custom_packages":["openssh"],
+        "custom_services":["sshd"],
+        "de":"mate"
+}

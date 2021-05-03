@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import os
+import sys
+import json
 import subprocess
 
 
@@ -10,20 +12,26 @@ class CommandFailedError(Exception):
 
 
 class Installer:
-    def __init__(self):
-        self.boot_part = '/dev/sda1'
-        self.root_part = '/dev/sda2'
-        self.root_fs = 'ext4'
-        self.home_part = None
-        self.home_fs = 'ext4'
+    def __init__(self, config):
+        # partition and file system stuff
+        self.boot_part = config['boot_part']
+        self.root_part = config['root_part']
+        self.root_fs = config['root_fs']
+        self.home_part = config['home_part']
+        self.home_fs = config['home_fs']
+        # this one is just... there
         self.root = '/mnt'
-        self.locale = 'en_IN UTF-8'
-        self.timezone = 'Asia/Kolkata'
-        self.hostname = 'arch'
-        self.kernels = ['linux']
-        self.custom_packages = ['openssh']
-        self.custom_services = ['sshd']
-        self.root_password = 'password'
+        # locale and timezone stuff
+        self.locale = config['locale']
+        self.timezone = config['timezone']
+        # hostname
+        self.hostname = config['hostname']
+        # packages and services
+        self.kernels = config['kernels']
+        self.custom_packages = config['custom_packages']
+        self.custom_services = config['custom_services']
+        # desktop env
+        self.de = config['de']
 
     def start(self):
         # formatting the partitions
@@ -76,10 +84,8 @@ class Installer:
         print('press ctrl + D when done')
         self.run('arch-chroot /mnt')
 
-        # powering off after user input
-        print('*'*40)
-        input('finished installing. press enter to poweroff')
-        self.run('umount -a ; poweroff')
+        # done
+        print("setup complete. type poweroff to shutdown or reboot to restart")
 
     def run(self, command):
         """runs command in the terminal"""
@@ -119,6 +125,35 @@ class Installer:
             self.run_chroot(f'systemctl enable {service}')
 
 
+def gen_config():
+    def get_input(prompt, choices=None, default=None):
+        pass
+    conf = {}
+    # partition and file system stuff
+    conf['boot_part'] = get_input('boot partition\nexample: /dev/sda1')
+    conf['root_part'] = get_input('root partition\nexample: /dev/sda2')
+    conf['home_part'] = get_input('home partition\nexample: /dev/sda2\nleave blank for no home partition')
+    conf['root_fs'] = get_input('root filesystem\ndefault: ext-4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
+    if conf['home_part']:
+        conf['home_fs'] = get_input('home filesystem\ndefault: ext-4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
+    # locale and timezone stuff
+    conf['locale'] = get_input('locale\nexample: en_IN utf-8\nsee /etc/locale/gen for more locales')
+    conf['timezone'] = get_input('timezone\nexample: Asia/Kolkata')
+    # hostname
+    conf['root_fs'] = get_input('hostname\ndefault: arch')
+    # packages and services
+
+    # desktop env
+
+    return json.dumps(conf)
+
+
 if __name__ == '__main__':
-    ins = Installer()
-    ins.start()
+    if '-f' in sys.argv:
+        conf_path = sys.argv[sys.argv.index('-f') + 1]
+        with open(conf_path, 'r') as f:
+            conf = json.loads(f.read())
+        ins = Installer(conf)
+    else:
+        conf = gen_config()
+        print(conf)
