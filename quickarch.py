@@ -22,7 +22,7 @@ class Installer:
         self.hostname = 'arch'
         self.kernels = ['linux']
         self.custom_packages = ['openssh']
-        self.custom_services = [sshd]
+        self.custom_services = ['sshd']
         self.root_password = 'password'
 
     def start(self):
