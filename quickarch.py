@@ -115,5 +115,4 @@ class Installer:
 
 if __name__ == '__main__':
     ins = Installer()
-    ins.enable(['pee', 'pee', 'poo', 'poo'])
-    ins.run_chroot('neofetch')
+    ins.start()
