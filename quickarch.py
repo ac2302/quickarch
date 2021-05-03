@@ -69,8 +69,12 @@ class Installer:
         # adding users
 
         # setting the passwords
-        print('\n\nset password for root user')
-        self.run_chroot('passwd')
+        self.run('clear')
+        print('set passwords for users and other configuration stuff')
+        print('use command \'passwd\' to set root password')
+        print('use command \'passwd <user>\' to set password of user with username <user>')
+        print('press ctrl + D when done')
+        self.run('arch-chroot /mnt')
 
         # powering off after user input
         print('*'*40)
