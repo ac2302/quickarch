@@ -67,7 +67,7 @@ class Installer:
         # installing grub
         self.install(['grub', 'efibootmgr', 'dosfstools', 'os-prober', 'mtools'])
         self.run_chroot(f'mount {self.boot_part} /boot/EFI')
-        self.run_chroot('grub-install --target=x86_64-efi --bootloader-id=arch_grub --reckeck')
+        self.run_chroot('grub-install --target=x86_64-efi --bootloader-id=arch_grub --recheck')
         self.run_chroot('grub-mkconfig -o /boot/grub/grub.cfg')
 
         # powering off after user input
