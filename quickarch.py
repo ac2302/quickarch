@@ -30,9 +30,9 @@ class Installer:
         if self.boot_part:
             self.run(f'mkfs.fat -F32 {self.boot_part}')
         if self.root_part:
-            self.run(f'mkfs.{root_fs} {self.root_part}')
+            self.run(f'mkfs.{self.root_fs} {self.root_part}')
         if self.home_part:
-            self.run(f'mkfs.{home_fs} {self.home_part}')
+            self.run(f'mkfs.{self.home_fs} {self.home_part}')
 
         # mounting the partitions
         self.run(f'mount {self.root_part} {self.root}')
