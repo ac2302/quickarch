@@ -21,9 +21,6 @@ class Installer:
         self.home_fs = config['home_fs']
         # this one is just... there
         self.root = '/mnt'
-        # locale and timezone stuff
-        self.locale = config['locale']
-        self.timezone = config['timezone']
         # hostname
         self.hostname = config['hostname']
         # packages and services
@@ -56,16 +53,6 @@ class Installer:
         self.install(packages=self.custom_packages)
         # enabling custom services
         self.enable(services=self.custom_services)
-
-        # setting a locale
-        with open(f'{self.root}/etc/locale-gen', 'a') as f:
-            print(self.locale, file=f)
-        self.run_chroot('locale-gen')
-
-        # setting a timezone
-        self.run_chroot(f'timedatectl set-timezone {self.timezone}')
-        # enabling timesync
-        self.run_chroot(f'systemctl enable systemd-timesyncd')
 
         # installing grub
         self.install(['grub', 'efibootmgr', 'dosfstools', 'os-prober', 'mtools'])
@@ -101,6 +88,7 @@ class Installer:
         self.run('clear')
         print('set passwords for users and other configuration stuff')
         print('use command \'passwd\' to set root password')
+        print('create new users with useradd')
         print('use command \'passwd <user>\' to set password of user with username <user>')
         print('press ctrl + D when done')
         self.run('arch-chroot /mnt')
@@ -258,9 +246,7 @@ def gen_config():
         conf['home_fs'] = get_input('home filesystem',default='ext4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
     else:
         conf['home_fs'] = ''
-    # locale and timezone stuff
-    conf['locale'] = get_input('locale\nexample: en_IN utf-8\nsee /etc/locale/gen for more locales', default='en_IN utf-8')
-    conf['timezone'] = get_input('timezone\nexample: Asia/Kolkata', default='Asia/Kolkata')
+    
     # hostname
     conf['hostname'] = get_input('hostname', default='arch')
 
