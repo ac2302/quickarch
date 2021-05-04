@@ -277,5 +277,10 @@ if __name__ == '__main__':
     else:
         conf = gen_config()
         print(json.loads(conf))
-        ins = Installer(json.loads(conf))
-        ins.start()
+        if '-s' in sys.argv:
+            conf_path = sys.argv[sys.argv.index('-f') + 1]
+            with open(conf_path, 'w') as f:
+                print(conf, file=f)
+        else:
+            ins = Installer(json.loads(conf))
+            ins.start()
