@@ -263,7 +263,9 @@ if __name__ == '__main__':
         with open(conf_path, 'r') as f:
             conf = json.loads(f.read())
         ins = Installer(conf)
+        ins.start()
     else:
         conf = gen_config()
         print(json.loads(conf))
         ins = Installer(json.loads(conf))
+        ins.start()
