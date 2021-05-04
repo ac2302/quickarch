@@ -27,7 +27,6 @@ class Installer:
         # hostname
         self.hostname = config['hostname']
         # packages and services
-        self.kernels = config['kernels']
         self.custom_packages = config['custom_packages']
         self.custom_services = config['custom_services']
         # desktop env
@@ -54,9 +53,9 @@ class Installer:
         self.run(f'pacstrap {self.root} base linux-firmware')
         
         # installing the kernels
-        for kernel in self.kernels:
-            packages = [kernel, kernel + '-headers']
-            self.install(packages=packages)
+        # for kernel in self.kernels:
+        #     packages = [kernel, kernel + '-headers']
+        #     self.install(packages=packages)
         
         # installing custom packages
         self.install(packages=self.custom_packages)
@@ -127,23 +126,130 @@ class Installer:
 
 def gen_config():
     def get_input(prompt, choices=None, default=None):
-        pass
+        print('\033[H\033[J', end='')   # sorcery that clears console
+        # printing the prompt and options
+        print(prompt)
+        if choices:
+            print('enter the number for the option you want to select')
+            for entry in enumerate(choices):
+                print(f'{entry[0]}: {entry[1]}')
+        # setting the prompt
+        prompt = '>> '
+        if default:
+            prompt = f'default: {default} ' + prompt
+        # taking the input
+        output = 'NA'   # this variable stores the user input. I need to get beter names for my variables
+        while output == 'NA':
+            if not choices:
+                try:
+                    output = input(prompt)
+                except KeyboardInterrupt:
+                    break
+                except:
+                    output = 'NA'
+                    print('invalid input. try again')
+                if default and (output == ''):
+                    output = default
+            else:
+                try:
+                    user_input = input(prompt)
+                    if user_input:
+                        index = int(user_input)
+                        output = choices[index]
+                    else:
+                        if default:
+                            output = default
+                        else:
+                            raise Exception
+                except KeyboardInterrupt:
+                    break
+                except:
+                    output = 'NA'
+                    print('invalid input. try again')
+        return output
+
+    def recommended_packages(package_list, service_list):
+        def install_prompt(package, service=None, default=True, description='no description'):
+            print('*'*40)
+            print(package)
+            if service:
+                print(f'will enable service {service}')
+            print(description)
+            # setting the prompt and some stuff
+            prompt = 'install? '
+            deny = 'n'
+            if default:
+                prompt += '[Y/n]: '
+            else:
+                prompt += '[y/N]: '
+            # getting the input from user
+            user_input = input(prompt).casefold()
+            selected = default
+            if user_input == 'y':
+                selected = True
+            elif user_input == 'n':
+                selected = False
+            if selected:
+                package_list.append(package)
+                if service:
+                    service_list.append(service)
+
+        #    package, service, default, description 
+        packages = [
+            ('linux', None, True, 'the latest linux kernel'),
+            ('linux-lts', None, False, 'the linux long term support kernel'),
+            ('linux-hardened', None, False, 'the security focussed linux kernel'),
+            ('linux-headers', None, True, 'headers for the latest linux kernel'),
+            ('linux-lts-headers', None, False, 'headers for the linux lts kernel'),
+            ('base-devel', None, True, 'packages for building package from source'),
+            ('openssh', 'sshd', False, 'ssd server'),
+            ('networkmanager', 'NetworkManager', True, 'used for networking (strongly reccomended)'),
+            ('wpa_supplicant', None, True, 'used for networking (strongly reccomended)'),
+            ('wireless_tools', None, True, 'used for networking (strongly reccomended)'),
+            ('netctl', None, True, 'used for networking (strongly reccomended)'),
+            ('dialog', None, True, 'used for networking (strongly reccomended)'),
+            ('intel-ucode', None, False, 'install for intel cpu'),
+            ('amd-ucode', None, False, 'install for amd cpu'),
+            ('mesa', None, False, 'video drivers for amd and intel gpu'),
+            ('nvidia', None, False, 'nvidia video drivers for linux kernel'),
+            ('nvidia-lts', None, False, 'nvidia video drivers for linux-lts kernel'),
+            ('nvidia-utils', None, False, 'nvidia utilities'),
+            ('virtualbox-guest-utils', None, False, 'video drivers for virtual machines'),
+            ('xf86-video-vmware', None, False, 'video drivers for virtual machines'),
+        ]
+        # calling install_prompt() for every package
+        for package in packages:
+            install_prompt(package=package[0], service=package[1], default=package[2], description=package[3])
+
     conf = {}
     # partition and file system stuff
     conf['boot_part'] = get_input('boot partition\nexample: /dev/sda1')
     conf['root_part'] = get_input('root partition\nexample: /dev/sda2')
-    conf['home_part'] = get_input('home partition\nexample: /dev/sda2\nleave blank for no home partition')
-    conf['root_fs'] = get_input('root filesystem\ndefault: ext-4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
+    conf['home_part'] = get_input('home partition\nexample: /dev/sda2\nleave blank for no home partition', default=None)
+    conf['root_fs'] = get_input('root filesystem',default='ext4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
     if conf['home_part']:
-        conf['home_fs'] = get_input('home filesystem\ndefault: ext-4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
+        conf['home_fs'] = get_input('home filesystem',default='ext4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
+    else:
+        conf['home_fs'] = ''
     # locale and timezone stuff
-    conf['locale'] = get_input('locale\nexample: en_IN utf-8\nsee /etc/locale/gen for more locales')
-    conf['timezone'] = get_input('timezone\nexample: Asia/Kolkata')
+    conf['locale'] = get_input('locale\nexample: en_IN utf-8\nsee /etc/locale/gen for more locales', default='en_IN utf-8')
+    conf['timezone'] = get_input('timezone\nexample: Asia/Kolkata', default='Asia/Kolkata')
     # hostname
-    conf['root_fs'] = get_input('hostname\ndefault: arch')
+    conf['hostname'] = get_input('hostname', default='arch')
+
     # packages and services
+    packages = []
+    services = []
+    # recommended packages
+    recommended_packages(packages, services)
+    # adding the packages and services to config
+    conf['custom_packages'] = packages
+    conf['custom_services'] = services
 
     # desktop env
+    conf['de'] = get_input('Desktop Env', choices=['nothing', 'kde', 'gnome', 'mate', 'xfce'])
+    if conf['de'] == 'nothing':
+        conf['de'] = ''
 
     return json.dumps(conf)
 
@@ -156,4 +262,5 @@ if __name__ == '__main__':
         ins = Installer(conf)
     else:
         conf = gen_config()
-        print(conf)
+        print(json.loads(conf))
+        ins = Installer(json.loads(conf))

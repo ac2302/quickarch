@@ -4,7 +4,6 @@
         "root_fs":"ext4",
         "home_part":"",
         "home_fs":"ext4",
-        "root":"/mnt",
         "locale":"en_IN UTF-8",
         "timezone":"Asia/Kolkata",
         "hostname":"arch",
