@@ -83,6 +83,7 @@ class Installer:
 
         # installing the desktop env
         if self.de:
+            self.install(['xorg'])
             if self.de == 'kde':
                 self.install(['plasma-meta', 'kde-applications'])
                 self.enable(['sddm'])
