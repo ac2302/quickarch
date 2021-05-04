@@ -52,11 +52,6 @@ class Installer:
         # pacstrapping
         self.run(f'pacstrap {self.root} base linux-firmware')
         
-        # installing the kernels
-        # for kernel in self.kernels:
-        #     packages = [kernel, kernel + '-headers']
-        #     self.install(packages=packages)
-        
         # installing custom packages
         self.install(packages=self.custom_packages)
         # enabling custom services
@@ -67,13 +62,24 @@ class Installer:
             print(self.locale, file=f)
         self.run_chroot('locale-gen')
 
+        # setting a timezone
+        self.run_chroot(f'timedatectl set-timezone {self.timezone}')
+        # enabling timesync
+        self.run_chroot(f'systemctl enable systemd-timesyncd')
+
         # installing grub
         self.install(['grub', 'efibootmgr', 'dosfstools', 'os-prober', 'mtools'])
         self.run_chroot(f'mount {self.boot_part} /boot/EFI')
         self.run_chroot('grub-install --target=x86_64-efi --bootloader-id=arch_grub --recheck')
         self.run_chroot('grub-mkconfig -o /boot/grub/grub.cfg')
 
-        # adding users
+        # configring hostname
+        self.run_chroot(f'hostnamectl set-hostname {self.hostname}')
+        # setting /etc/hosts
+        with open(f'{self.root}/etc/hosts', 'a') as f:
+            print('127.0.0.1\tlocalhost', file=f)
+            print('::1\t\tlocalhost', file=f)
+            print(f'127.0.1.1\tlocalhost', file=f)
 
         # setting the passwords
         self.run('clear')
