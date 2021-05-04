@@ -79,7 +79,7 @@ class Installer:
         with open(f'{self.root}/etc/hosts', 'a') as f:
             print('127.0.0.1\tlocalhost', file=f)
             print('::1\t\tlocalhost', file=f)
-            print(f'127.0.1.1\tlocalhost', file=f)
+            print(f'127.0.1.1\t{self.hostname}', file=f)
 
         # installing the desktop env
         if self.de:
