@@ -81,6 +81,21 @@ class Installer:
             print('::1\t\tlocalhost', file=f)
             print(f'127.0.1.1\tlocalhost', file=f)
 
+        # installing the desktop env
+        if self.de:
+            if self.de == 'kde':
+                self.install(['plasma-meta', 'kde-applications'])
+                self.enable(['sddm'])
+            elif self.de == 'gnome':
+                self.install(['gnome', 'gnome-tweaks'])
+                self.enable(['ddm'])
+            elif self.de == 'mate':
+                self.install(['mate', 'mate-extra', 'lightdm', 'lightdm-gtk-greeter'])
+                self.enable(['lightdm'])
+            elif self.de == 'xfce':
+                self.install(['xfce4', 'xfce4-goodies', 'lightdm', 'lightdm-gtk-greeter'])
+                self.enable(['lightdm'])
+
         # setting the passwords
         self.run('clear')
         print('set passwords for users and other configuration stuff')
