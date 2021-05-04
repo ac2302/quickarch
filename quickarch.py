@@ -143,13 +143,16 @@ def gen_config():
             if not choices:
                 try:
                     output = input(prompt)
+                    if default and (output == ''):
+                        output = default
+                    elif (not default) and (output == ''):
+                        output = 'NA'
+                        raise Exception
                 except KeyboardInterrupt:
                     break
                 except:
                     output = 'NA'
                     print('invalid input. try again')
-                if default and (output == ''):
-                    output = default
             else:
                 try:
                     user_input = input(prompt)
