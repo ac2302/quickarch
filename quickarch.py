@@ -228,7 +228,9 @@ def gen_config():
     # partition and file system stuff
     conf['boot_part'] = get_input('boot partition\nexample: /dev/sda1')
     conf['root_part'] = get_input('root partition\nexample: /dev/sda2')
-    conf['home_part'] = get_input('home partition\nexample: /dev/sda2\nleave blank for no home partition', default=None)
+    conf['home_part'] = get_input('home partition\nexample: /dev/sda2\nenter \'none\' for no home partition', default=None)
+    if conf['home_part'].casefold() == 'none':
+        conf['home_part'] = ''
     conf['root_fs'] = get_input('root filesystem',default='ext4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
     if conf['home_part']:
         conf['home_fs'] = get_input('home filesystem',default='ext4', choices=['bfs', 'btrfs', 'cramfs', 'ext2', 'ext3', 'ext4', 'fat', 'minix', 'msdos', 'vfat', 'xfs'])
